@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Simulator Mengemudi Tol Indonesia - POV Supir RHD (Python ML Head Tracking)</title>
+    <!-- Stylesheet Eksternal (Modular) -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <canvas id="roadCanvas"></canvas>
+
+    <!-- Top HUD -->
+    <div id="hud-top">
+        <div class="hud-badge toll-info">
+            🛣️ <span id="hud-route">Tol Cipularang KM 88.4</span>
+        </div>
+        <div class="hud-badge">
+            Kecepatan: <span class="val" id="hud-speed">0</span>&nbsp;km/j
+        </div>
+        <div class="hud-badge">
+            Transmisi: <span class="val" id="hud-gear">P</span>
+        </div>
+        <div class="hud-badge">
+            RPM: <span class="val" id="hud-rpm">800</span>
+        </div>
+        <!-- Tombol Hidup/Matikan Kamera Python ML (Manual) -->
+        <button id="btn-cam" class="hud-badge btn-cam-toggle" title="Tekan untuk Menghidupkan atau Mematikan Kamera (Shortcut: C)">
+            <span>📷 Kamera Head-Track:</span>
+            <span id="cam-badge-state" class="cam-badge-status off">MATI</span>
+        </button>
+    </div>
+
+    <!-- Quick Controls Guide -->
+    <div id="guide-panel">
+        <div><span class="k-btn">↑</span> / <span class="k-btn">W</span> Gas (Akselerasi)</div>
+        <div><span class="k-btn">↓</span> / <span class="k-btn">S</span> Rem / Mundur</div>
+        <div><span class="k-btn">←</span> <span class="k-btn">→</span> / <span class="k-btn">A</span> <span class="k-btn">D</span> Stir / Pindah Lajur</div>
+        <div><span class="k-btn">C</span> <b>Hidupkan / Matikan Kamera</b></div>
+        <div><span class="k-btn">H</span> Klakson &nbsp; <span class="k-btn">F</span> Hazard</div>
+    </div>
+
+    <!-- Floating Driver Monitoring System (Camera PIP Window) -->
+    <div id="cam-panel">
+        <div class="cam-header">
+            <div style="display:flex; align-items:center;">
+                <span id="camLed" class="cam-status-led"></span>
+                <span>DMS HEAD TRACKING (PYTHON ML)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span id="camFps" style="font-size: 9px; color: #64748b;">Python ML</span>
+                <!-- Explicit Close / Turn Off Button -->
+                <button id="btn-cam-close" class="cam-close-btn" title="Matikan Kamera (Tutup)">✕</button>
+            </div>
+        </div>
+        <div class="cam-preview-box">
+            <canvas id="camPreviewCanvas" width="200" height="150"></canvas>
+            <video id="webcamVideo" width="320" height="240" autoplay playsinline muted></video>
+        </div>
+        <!-- Steering Visual Meter -->
+        <div class="steer-meter-wrap">
+            <div class="steer-meter-labels">
+                <span id="meterLabelLeft">◄ KIRI</span>
+                <span id="meterStatus" style="color: #38bdf8;">• NETRAL •</span>
+                <span id="meterLabelRight">KANAN ►</span>
+            </div>
+            <div class="steer-meter-track">
+                <div class="steer-meter-center"></div>
+                <div id="steer-meter-bar"></div>
+            </div>
+        </div>
+        <div class="cam-btn-row">
+            <button id="btn-recalibrate" class="cam-action-btn">🎯 Kalibrasi</button>
+            <button id="btn-cam-off-direct" class="cam-action-btn btn-stop-cam">⏹ Matikan</button>
+        </div>
+        <div class="cam-hint-text">
+            Miringkan / tengokkan kepala ke kiri/kanan. Sistem Python ML mendeteksi orientasi kepala untuk memutar kemudi mobil secara real-time.
+        </div>
+    </div>
+
+    <!-- Toast Notification for Camera On/Off -->
+    <div id="cam-toast"></div>
+
+    <div id="audio-hint">🔊 Tekan tombol apapun untuk memulai audio mesin & klakson</div>
+    <div id="beep-banner">📯 TIN TIIIN!</div>
+
+    <!-- Script Modular: Tracker Client (Koneksi Backend Python ML) & Game Engine -->
+    <script src="js/tracker_client.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

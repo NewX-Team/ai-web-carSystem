@@ -1,0 +1,388 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #06090e;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+canvas#roadCanvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Top HUD */
+#hud-top {
+    position: fixed;
+    top: 14px;
+    left: 20px;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hud-badge {
+    background: rgba(10, 16, 26, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 6px 13px;
+    color: #d1d5db;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+}
+
+.hud-badge span.val {
+    color: #38bdf8;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+}
+
+.hud-badge.toll-info {
+    background: rgba(22, 101, 52, 0.88);
+    border-color: rgba(74, 222, 128, 0.4);
+    color: #f0fdf4;
+}
+
+/* Camera Manual Toggle Button in HUD */
+button.btn-cam-toggle {
+    cursor: pointer;
+    border: 1.5px solid rgba(56, 189, 248, 0.5);
+    background: rgba(15, 23, 42, 0.9);
+    color: #f0f9ff;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    gap: 8px;
+}
+
+button.btn-cam-toggle:hover {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: #38bdf8;
+    transform: translateY(-1px);
+}
+
+.cam-badge-status {
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.cam-badge-status.off {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.cam-badge-status.on {
+    background: rgba(34, 197, 94, 0.25);
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+}
+
+button.btn-cam-toggle.active {
+    background: rgba(20, 83, 45, 0.9);
+    border-color: #4ade80;
+    color: #ffffff;
+    box-shadow: 0 0 18px rgba(74, 222, 128, 0.45);
+}
+
+/* Quick Controls Guide */
+#guide-panel {
+    position: fixed;
+    top: 14px;
+    right: 20px;
+    z-index: 30;
+    background: rgba(10, 16, 26, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    padding: 8px 14px;
+    color: #94a3b8;
+    font-size: 11px;
+    line-height: 1.6;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+}
+
+.k-btn {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 10px;
+    color: #f1f5f9;
+    font-weight: 600;
+    margin: 0 1px;
+}
+
+/* Floating Driver Monitoring System (DMS / Camera Head-Tracking Panel) */
+#cam-panel {
+    position: fixed;
+    top: 150px;
+    right: 20px;
+    z-index: 35;
+    width: 220px;
+    background: rgba(15, 23, 42, 0.94);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    display: none;
+}
+
+#cam-panel.visible {
+    display: block;
+}
+
+.cam-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    color: #38bdf8;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.cam-close-btn {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+    border-radius: 4px;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.cam-close-btn:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.cam-status-led {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+    margin-right: 4px;
+}
+
+.cam-status-led.calibrating {
+    background: #facc15;
+    box-shadow: 0 0 8px #facc15;
+}
+
+.cam-preview-box {
+    position: relative;
+    width: 200px;
+    height: 150px;
+    background: #020617;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#camPreviewCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#webcamVideo {
+    display: none;
+}
+
+/* Steering Gauge Bar inside Camera Panel */
+.steer-meter-wrap {
+    margin-top: 8px;
+}
+
+.steer-meter-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 2px;
+}
+
+.steer-meter-track {
+    position: relative;
+    height: 7px;
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.steer-meter-center {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+#steer-meter-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0%;
+    left: 50%;
+    background: #38bdf8;
+    transition: all 0.05s ease-out;
+}
+
+#steer-meter-bar.left {
+    background: #22c55e;
+}
+
+#steer-meter-bar.right {
+    background: #f59e0b;
+}
+
+/* Controls in Camera Panel */
+.cam-btn-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.cam-action-btn {
+    flex: 1;
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e2e8f0;
+    padding: 5px 4px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.cam-action-btn:hover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: #38bdf8;
+    color: #ffffff;
+}
+
+.cam-action-btn.btn-stop-cam {
+    background: rgba(127, 29, 29, 0.7);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.cam-action-btn.btn-stop-cam:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.cam-hint-text {
+    font-size: 9px;
+    color: #64748b;
+    text-align: center;
+    margin-top: 6px;
+    line-height: 1.3;
+}
+
+/* Toast notification popup for Camera On/Off status */
+#cam-toast {
+    position: fixed;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(15, 23, 42, 0.95);
+    border: 1.5px solid #38bdf8;
+    color: #f0f9ff;
+    padding: 11px 26px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 120;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.25s ease-out;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(56, 189, 248, 0.3);
+    text-align: center;
+}
+
+#cam-toast.active {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Audio alert prompt */
+#audio-hint {
+    position: fixed;
+    bottom: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+    transition: opacity 0.6s ease;
+}
+
+/* Beep notification popup */
+#beep-banner {
+    position: fixed;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: rgba(234, 179, 8, 0.95);
+    color: #0f172a;
+    padding: 12px 30px;
+    border-radius: 40px;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.15s ease-out;
+    box-shadow: 0 0 35px rgba(234, 179, 8, 0.6);
+}
+
+#beep-banner.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+}
