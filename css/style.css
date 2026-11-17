@@ -273,8 +273,9 @@ button.btn-cam-toggle.active {
 
 /* Controls in Camera Panel */
 .cam-btn-row {
-    display: flex;
-    gap: 5px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
     margin-top: 8px;
 }
 

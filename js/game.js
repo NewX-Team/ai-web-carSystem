@@ -453,6 +453,18 @@ function updatePhysics(dt) {
     }
     car.speed = Math.max(-MAX_SPEED_REV, Math.min(MAX_SPEED_FWD, car.speed));
 
+    // ── Auto-Cruise Jalan Tol Saat Sensor Kamera Aktif ──
+    // Membantu mobil melaju stabil di jalan tol sehingga gerakan kepala langsung mengarahkan mobil pindah lajur
+    if (window.TrackerClient && TrackerClient.active && !input.down) {
+        const cruiseSpeed = 20.8; // ~75 km/j (kecepatan stabil tol)
+        if (car.speed < cruiseSpeed) {
+            car.speed += (cruiseSpeed - car.speed) * 1.6 * dt;
+        }
+        if (car.gear === 'P' || car.gear === 'N') {
+            car.gear = 'D';
+        }
+    }
+
     // ── Steering Input: Python ML Head Tracking (Jika Aktif) + Keyboard ──
     let steerDir = 0;
 
@@ -470,13 +482,16 @@ function updatePhysics(dt) {
     car.wheelAngle += (car.wheelTarget - car.wheelAngle) * returnSpeed * dt;
     if (Math.abs(car.wheelAngle) < 0.8 && steerDir === 0) car.wheelAngle = 0;
 
-    const roadWheelRad = (car.wheelAngle / MAX_STEER_DEG) * 32 * (Math.PI / 180);
+    // ── Gerak Fisika Mobil Mengikuti Kemudi Kepala Secara Nyata ──
+    const steerNorm = car.wheelAngle / MAX_STEER_DEG; // -1.0 s/d +1.0
     if (absSpeed > 0.4) {
-        const latAccel = Math.tan(roadWheelRad) * (car.speed * car.speed) / 2.7;
-        const clampedLat = Math.max(-8.5, Math.min(8.5, latAccel));
-        car.velX += clampedLat * dt;
+        // Kecepatan lateral langsung merespons stir sehingga mobil lincah berpindah lajur
+        const speedFactor = Math.min(1.25, Math.max(0.45, absSpeed / 13));
+        const targetLatVel = steerNorm * 6.2 * speedFactor;
+        car.velX += (targetLatVel - car.velX) * 6.0 * dt;
+    } else {
+        car.velX *= 0.85;
     }
-    car.velX -= car.velX * 4.2 * dt;
     car.posX += car.velX * dt;
 
     const minX = -CARRIAGE_W / 2 - SHOULDER_W + 0.8;

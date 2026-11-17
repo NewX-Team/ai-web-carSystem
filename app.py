@@ -86,10 +86,27 @@ class DrivingSimHandler(SimpleHTTPRequestHandler):
             body = self.rfile.read(content_length)
             try:
                 data = json.loads(body)
-                val = float(data.get('steer', 0.0))
-                with ml_tracker.lock:
-                    ml_tracker.steer_value = max(-1.0, min(1.0, val))
+                steer = float(data.get('steer', 0.0))
+                roll = float(data.get('roll', 0.0))
+                yaw = float(data.get('yaw', 0.0))
+                face_detected = bool(data.get('face_detected', True))
+                ml_tracker.sync_from_client(steer, roll, yaw, face_detected)
                 self._send_json({"success": True})
+            except Exception as e:
+                self.send_error(400, str(e))
+            return
+
+        # 5. API: Konfigurasi Sensitivitas & Arah Kemudi
+        elif self.path == '/api/config':
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length)
+            try:
+                data = json.loads(body)
+                ml_tracker.set_config(
+                    sensitivity=data.get('sensitivity'),
+                    inverted=data.get('inverted')
+                )
+                self._send_json({"success": True, "config": ml_tracker.get_status()})
             except Exception as e:
                 self.send_error(400, str(e))
             return
